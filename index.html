@@ -970,7 +970,7 @@ body.search-open{
 }
 </style>
 </head>
-<body>
+<body class="">
 <nav class="topbar">
   <div class="nav-inner">
     <div class="brand">ISTEKANA Cafe</div>
@@ -1940,7 +1940,7 @@ const makeId = (text) => text.trim().replace(/\s+/g, '-');
 const normalize = (text) => text.toString().trim().toLowerCase().normalize('NFKD').replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/[ؤ]/g, 'و').replace(/[ئ]/g, 'ي').replace(/[ةه]/g, 'ه').replace(/[ىي]/g, 'ي').replace(/[گك]/g, 'ك').replace(/[پب]/g, 'ب').replace(/[چج]/g, 'ج').replace(/[^ء-ي0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
 const compact = (text) => normalize(text).replace(/\s+/g, '');
 function editDistance(a, b){if(a===b)return 0;if(!a.length)return b.length;if(!b.length)return a.length;const previous=Array.from({length:b.length+1},(_,index)=>index);const current=new Array(b.length+1);for(let i=1;i<=a.length;i+=1){current[0]=i;for(let j=1;j<=b.length;j+=1){const cost=a[i-1]===b[j-1]?0:1;current[j]=Math.min(current[j-1]+1,previous[j]+1,previous[j-1]+cost)}for(let j=0;j<=b.length;j+=1){previous[j]=current[j]}}return previous[b.length]}
-function fuzzyTokenMatch(queryToken, textToken){if(!queryToken||!textToken)return false;if(textToken.includes(queryToken))return true;const shortest=Math.min(queryToken.length,textToken.length);if(shortest<3)return false;const distance=editDistance(queryToken,textToken);const limit=shortest<=4?1:shortest<=7?2:3;return distance<=limit}
+function fuzzyTokenMatch(queryToken, textToken){if(!queryToken||!textToken)return false;if(textToken.includes(queryToken))return true;const shortest=Math.min(queryToken.length,textToken.length);if(shortest<3)return false;const distance=editDistance(queryToken,textToken);const limit=shortest<=4?0:(shortest<=7?1:2);return distance<=limit}
 function smartMatch(text, query){const normalizedText=normalize(text);const normalizedQuery=normalize(query);if(!normalizedQuery)return true;if(normalizedText.includes(normalizedQuery))return true;const textCompact=compact(text);const queryCompact=compact(query);if(textCompact.includes(queryCompact))return true;const queryTokens=normalizedQuery.split(' ').filter(Boolean);const textTokens=normalizedText.split(' ').filter(Boolean);return queryTokens.every((queryToken)=>textTokens.some((textToken)=>fuzzyTokenMatch(queryToken,textToken)))}
 function createItem(item){const entry=document.createElement('div');entry.className='menu-entry';const row=document.createElement('div');row.className='item';const name=document.createElement('span');name.className='item-name';name.textContent=item.name;const price=document.createElement('span');price.className='item-price';price.innerHTML=`${item.price}<span class="currency">جنيه</span>`;row.append(name,price);entry.append(row);if(item.desc){const desc=document.createElement('div');desc.className='item-desc';desc.textContent=item.desc;entry.append(desc)}return entry}
 function renderMenu(data=menuData){menuEl.innerHTML='';data.forEach((section)=>{const card=document.createElement('section');card.className=`card${section.featured?' featured':''}`;card.id=makeId(section.section);const label=document.createElement('div');label.className='label';label.textContent=section.section;const items=document.createElement('div');items.className='items';section.items.forEach((item)=>items.append(createItem(item)));card.append(label,items);menuEl.append(card)});noResults.style.display=data.length?'none':'block'}
